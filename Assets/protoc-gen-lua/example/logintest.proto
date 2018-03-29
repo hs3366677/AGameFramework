@@ -1,0 +1,13 @@
+
+message LoginTestRequest {
+	required int32 id = 1;
+	required string name = 2;
+	required string names = 3;
+	optional string email = 4;
+}
+
+message LoginTestResponse {
+	required int32 id = 1;
+	required string name = 2;
+	optional string email = 3;
+}

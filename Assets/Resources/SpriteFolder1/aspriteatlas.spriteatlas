@@ -1,0 +1,59 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!687078895 &4343727234628468602
+SpriteAtlas:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_Name: aspriteatlas
+  m_EditorData:
+    textureSettings:
+      serializedVersion: 2
+      anisoLevel: 1
+      compressionQuality: 50
+      maxTextureSize: 2048
+      textureCompression: 0
+      filterMode: 1
+      generateMipMaps: 0
+      readable: 0
+      crunchedCompression: 0
+      sRGB: 1
+    platformSettings: []
+    packingParameters:
+      serializedVersion: 2
+      padding: 4
+      blockOffset: 1
+      allowAlphaSplitting: 0
+      enableRotation: 1
+      enableTightPacking: 1
+    variantMultiplier: 1
+    packables:
+    - {fileID: 102900000, guid: 9d1311499b2ad974b852f5547d7a852d, type: 3}
+    bindAsDefault: 1
+  m_MasterAtlas: {fileID: 0}
+  m_PackedSprites:
+  - {fileID: 21300000, guid: 11835c59a796bad4a96fef0173a76a2d, type: 3}
+  - {fileID: 21300000, guid: 80e22717cc244344e98461ff3cb05e07, type: 3}
+  - {fileID: 21300000, guid: d78f4f4c1ce4b49489b7a968890b7036, type: 3}
+  - {fileID: 21300000, guid: 835402de12c68144e87616963e2f1a69, type: 3}
+  - {fileID: 21300000, guid: 1a9e05730b8cff94aab27d5cf4ab16cf, type: 3}
+  - {fileID: 21300000, guid: 5d764a6b305a1b648b77aeda2722c561, type: 3}
+  - {fileID: 21300000, guid: 9ad37ebc4961a234ab13870f9b109daa, type: 3}
+  - {fileID: 21300000, guid: 1108ec0706a2cfa4b93fbab5ada40e6d, type: 3}
+  - {fileID: 21300000, guid: a75679c0c6234984181cdfa9836e81d3, type: 3}
+  - {fileID: 21300000, guid: 80d6191550d917d4191f70c2250728ff, type: 3}
+  - {fileID: 21300000, guid: 0bcd95b1a7ac4c74f81ccbfd00a1ea52, type: 3}
+  m_PackedSpriteNamesToIndex:
+  - bagbg
+  - bag_biaoqian20
+  - bag_biaoqian15
+  - bag_biaoqian14
+  - bag_biaoqian17
+  - bag_biaoqian16
+  - bag_biaoqian11
+  - bag_biaoqian13
+  - bag_biaoqian12
+  - bag_biaoqian19
+  - bag_biaoqian18
+  m_Tag: aspriteatlas
+  m_IsVariant: 0

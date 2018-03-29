@@ -1,0 +1,17 @@
+﻿using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+
+public class {0}DB:AutoImportDatabase
+#1
+    [DbField(DbFieldType.List)]
+	public List<{1}> dataList = new List<{2}>();
+	public static {3}DB Instance;
+    void Awake() #1 Instance = this; #2
+#2
+
+[System.Serializable]
+public class {4}
+#1
+    {5}
+#2
