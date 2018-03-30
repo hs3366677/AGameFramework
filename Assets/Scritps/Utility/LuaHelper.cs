@@ -60,6 +60,17 @@ namespace LuaFramework {
             Debug.LogWarning("OnCallLuaFunc length:>>" + data.buffer.Length);
         }
 
+
+
+        public static GameObject CreateInstance()
+        {
+
+            UnityEngine.Object obj = UnityEditor.AssetDatabase.LoadAssetAtPath("Assets/GameModules/Pet/Prefab/TestUI.prefab", typeof(GameObject));
+            GameObject result = UnityEngine.Object.Instantiate(obj) as GameObject;
+            return result;
+
+        }
+
         /// <summary>
         /// cjson函数回调
         /// </summary>

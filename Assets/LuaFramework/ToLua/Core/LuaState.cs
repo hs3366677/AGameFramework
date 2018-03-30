@@ -161,6 +161,13 @@ namespace LuaInterface
             UnityEngine_CoroutineWrap.Register(this);
             EndModule(); //end UnityEngine
 
+#if UNITY_EDITOR
+            BeginModule("UnityEditor");
+            UnityEngine_ObjectWrap.Register(this);
+            UnityEngine_CoroutineWrap.Register(this);
+            EndModule(); //end UnityEditor
+#endif
+
             EndModule(); //end global
 
             LuaUnityLibs.OpenLibs(L);

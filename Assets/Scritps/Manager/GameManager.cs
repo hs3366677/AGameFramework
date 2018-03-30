@@ -251,10 +251,10 @@ namespace LuaFramework {
 
             Debugger.Log("TestObjectClass--->>>" + testObj1.ToString());
 
+            
             //游戏对象池测试
             var prefab = Resources.Load("TestGameObjectPrefab", typeof(GameObject)) as GameObject;
             var gameObjPool = ObjPoolManager.CreatePool("TestGameObject", 5, 10, prefab);
-
             var gameObj = Instantiate(prefab) as GameObject;
             gameObj.name = "TestGameObject_01";
             gameObj.transform.localScale = Vector3.one;

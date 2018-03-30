@@ -20,10 +20,10 @@ public class TestScene2 : MonoBehaviour {
     public void StartLuaScript()
     {
 
-
         LuaManager mLuaManager = gameObject.AddComponent<LuaManager>();
 
         mLuaManager.InitStart();
         mLuaManager.DoFile("TestLua");
+        
     }
 }

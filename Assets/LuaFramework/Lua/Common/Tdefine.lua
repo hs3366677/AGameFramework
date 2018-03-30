@@ -37,3 +37,4 @@ tNetworkCtrl = TestHelper.GetNetworkController();
 Protocol = Protocols.Protocol;
 WWW = UnityEngine.WWW;
 GameObject = UnityEngine.GameObject;
+Resources = UnityEngine.Resources;
