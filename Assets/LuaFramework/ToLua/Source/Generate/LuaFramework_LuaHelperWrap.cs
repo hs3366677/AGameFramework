@@ -121,8 +121,9 @@ public class LuaFramework_LuaHelperWrap
 	{
 		try
 		{
-			ToLua.CheckArgsCount(L, 0);
-			UnityEngine.GameObject o = LuaFramework.LuaHelper.CreateInstance();
+			ToLua.CheckArgsCount(L, 1);
+			string arg0 = ToLua.CheckString(L, 1);
+			UnityEngine.GameObject o = LuaFramework.LuaHelper.CreateInstance(arg0);
 			ToLua.PushSealed(L, o);
 			return 1;
 		}

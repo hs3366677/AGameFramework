@@ -62,13 +62,15 @@ namespace LuaFramework {
 
 
 
-        public static GameObject CreateInstance()
+        public static GameObject CreateInstance(string where)
         {
-
-            UnityEngine.Object obj = UnityEditor.AssetDatabase.LoadAssetAtPath("Assets/GameModules/Pet/Prefab/TestUI.prefab", typeof(GameObject));
+#if UNITY_EDITOR
+            UnityEngine.Object obj = UnityEditor.AssetDatabase.LoadAssetAtPath(where, typeof(GameObject));
             GameObject result = UnityEngine.Object.Instantiate(obj) as GameObject;
             return result;
-
+#else
+            return null;
+#endif
         }
 
         /// <summary>
@@ -77,8 +79,9 @@ namespace LuaFramework {
         /// <param name="data"></param>
         /// <param name="func"></param>
         public static void OnJsonCallFunc(string data, LuaFunction func) {
-            Debug.LogWarning("OnJsonCallback data:>>" + data + " lenght:>>" + data.Length);
+            Debug.LogWarning("OnJsonCallback data:>>" + data + " length:>>" + data.Length);
             if (func != null) func.Call(data);
         }
+
     }
 }

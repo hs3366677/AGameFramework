@@ -86,7 +86,6 @@ public class TestReflection : LuaClient
     protected override void OnLoadFinished()
     {        
         base.OnLoadFinished();
-
         /*Type t = typeof(TestExport);
         MethodInfo md = t.GetMethod("TestReflection");
         md.Invoke(null, null);

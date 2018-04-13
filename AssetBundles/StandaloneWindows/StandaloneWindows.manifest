@@ -1,0 +1,28 @@
+ManifestFileVersion: 0
+CRC: 899677600
+AssetBundleManifest:
+  AssetBundleInfos:
+    Info_0:
+      Name: abtag10
+      Dependencies: {}
+    Info_1:
+      Name: testexceldb
+      Dependencies: {}
+    Info_2:
+      Name: testprotocolpanel
+      Dependencies: {}
+    Info_3:
+      Name: gamemanager
+      Dependencies: {}
+    Info_4:
+      Name: abtag20
+      Dependencies: {}
+    Info_5:
+      Name: testgameobjectprefab
+      Dependencies: {}
+    Info_6:
+      Name: luascripts
+      Dependencies: {}
+    Info_7:
+      Name: emoji
+      Dependencies: {}

@@ -22,6 +22,8 @@ using LuaFramework;
             LuaBinder.Bind(lua);
             DelegateFactory.Init();
             LuaCoroutine.Register(lua, this);
+
+            
         }
 
         public void InitStart()

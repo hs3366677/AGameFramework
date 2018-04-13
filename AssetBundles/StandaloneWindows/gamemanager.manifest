@@ -1,0 +1,24 @@
+ManifestFileVersion: 0
+CRC: 862916997
+Hashes:
+  AssetFileHash:
+    serializedVersion: 2
+    Hash: cedb3be76bd4354b6302a39c7842d963
+  TypeTreeHash:
+    serializedVersion: 2
+    Hash: d997f64041ee5ad5ba79ab60dc3062f9
+HashAppended: 0
+ClassTypes:
+- Class: 1
+  Script: {instanceID: 0}
+- Class: 4
+  Script: {instanceID: 0}
+- Class: 114
+  Script: {fileID: 11500000, guid: 8d7b55c7ecdb49a4a89fa5e6f9022861, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: 27ade46ee44bd5c48a3795f8e555a16f, type: 3}
+- Class: 115
+  Script: {instanceID: 0}
+Assets:
+- Assets/Resources/GameManager.prefab
+Dependencies: []
