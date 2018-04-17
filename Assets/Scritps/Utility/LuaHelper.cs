@@ -60,6 +60,9 @@ namespace LuaFramework {
             Debug.LogWarning("OnCallLuaFunc length:>>" + data.buffer.Length);
         }
 
+        public static Transform GetActiveCanvasParent(){
+            return GameObject.Find("Canvas").transform;
+        }
 
 
         public static GameObject CreateInstance(string where)

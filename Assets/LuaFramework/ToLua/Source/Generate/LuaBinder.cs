@@ -13,6 +13,7 @@ public static class LuaBinder
 		TestHelperWrap.Register(L);
 		LuaProfilerWrap.Register(L);
 		LuaManagerWrap.Register(L);
+		MixedLabelWrap.Register(L);
 		ViewWrap.Register(L);
 		BaseWrap.Register(L);
 		ManagerWrap.Register(L);

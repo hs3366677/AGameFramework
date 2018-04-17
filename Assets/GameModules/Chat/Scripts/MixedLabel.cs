@@ -3,34 +3,36 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using System;
+using System.Diagnostics;
+using Debug = UnityEngine.Debug;
 
-public class MixedLabel : MonoBehaviour, IMixedLabel
+public class MixedLabel : MonoBehaviour, IDisposable
 {
-    public HtmlLink m_linkPrefab;
-    public MotionEmoji m_emojiPrefab;
-    public Image m_imagePrefab;
+    List<GameObject> emojiList;
+    List<GameObject> hyperlinkList;
 
-    Text m_text;
-
-    public static MixedLabelGlobal.CreateObjAction myCreateAction;
-    public static MixedLabelGlobal.DisposeObjAction myDisposeAction;
+    Text mText;
 
     void Awake()
     {
-        //这一段以后要删除，切记！
-        MixedLabelUtil.LoadEmojiBundle();
-
-        m_text = GetComponent<Text>();
-        string str = "我是[e-1][e-2]一段[h-超链接文字超链接文字超链接文字超链接文字超链接文字_DoAction]，一个[e-1][e-2]一个[e-1][e-2]一个[e-1][e-2]一个[e-1][e-2]一个[e-1][e-2]一个[e-1][e-2]一个[e-1][e-2]一个[e-1][e-2]，外加一张[i-aaa]和一张[i-bbb]";
-        Init(str, (int)m_text.rectTransform.sizeDelta.x);
+        mText = GetComponent<Text>();
+        if (mText == null)
+        {
+            mText = gameObject.AddComponent<Text>();
+        }
     }
 
-    public void Init(string str,int maxWidth)
+    public void Init(string str, int maxWidth)
     {
         string tempStr = "";                                                                            //最终输出的字符串
         Vector2 widgetPos = Vector2.zero;                                                               //计算位置，方便控件创建
-        float spaceWidth = MixedLabelUtil.GetCharacterSize(' ', m_text.font, m_text.fontSize);            //获取空格字符宽度
+        int chWidth = 0;
+        int chHeight = 0;
+        int fontSize = mText.fontSize;
+        Font font = mText.font;
+        MixedLabelUtil.GetCharacterSize(' ', font, ref fontSize, out chWidth, out chHeight);            //获取空格字符宽度
 
+        Debug.LogFormat("Space width = {0}; Space height = {1}", chWidth, chHeight);
         for (int i = 0; i < str.Length; i++ )
         {
             // 发现转译符号，并且有结尾
@@ -46,13 +48,13 @@ public class MixedLabel : MonoBehaviour, IMixedLabel
                         tempStr = ChangeLine(tempStr, ref widgetPos);
 
                     //空格填充
-                    int spaceCount = (int)Mathf.Round(MixedLabelUtil.s_emojiSize / spaceWidth);
+                    int spaceCount = (int)Mathf.Round(MixedLabelUtil.s_emojiSize / chWidth);
                     tempStr += new string(' ', spaceCount);
 
                     int emojiId = int.Parse(speicalWord.Substring(2, speicalWord.Length - 2));
                     CreateEmoji(ref emojiId, ref widgetPos);
 
-                    widgetPos.x += spaceCount * spaceWidth;
+                    widgetPos.x += spaceCount * chWidth;
                 }
                 else if(StringUtil.StartsWith(speicalWord, MixedLabelUtil.iChunk))//图片转译，格式为[i-路径]
                 {
@@ -73,7 +75,7 @@ public class MixedLabel : MonoBehaviour, IMixedLabel
                     string currentLinkText = "";
                     for(int j = 0 ; j < linkText.Length ;j++)
                     {
-                        float chWidth = MixedLabelUtil.GetCharacterSize(linkText[j], m_text.font, m_text.fontSize);
+                        MixedLabelUtil.GetCharacterSize(linkText[j], mText.font, ref fontSize, out chWidth, out chHeight);
                         linkTextWidth += chWidth;
                         currentLinkText += linkText[j];
                         if(widgetPos.x + linkTextWidth > maxWidth)
@@ -81,7 +83,7 @@ public class MixedLabel : MonoBehaviour, IMixedLabel
                             //注意，这里如果有换行，最好是以最大行距和当前控件位置的差来补空格，不然有可能出现空格传到下一行的问题
                             linkTextWidth = maxWidth - widgetPos.x;
                             //空格填充
-                            int spaceCount = (int)Mathf.Round(linkTextWidth / spaceWidth);
+                            int spaceCount = (int)Mathf.Round(linkTextWidth / chWidth);
                             tempStr += new string(' ', spaceCount);
                             //创建链接并加入列表
                             int linkCount = links.Count;
@@ -95,7 +97,7 @@ public class MixedLabel : MonoBehaviour, IMixedLabel
                     }
                     //全部完成后把最后的内容都加入
                     //空格填充
-                    int lastSpaceCount = (int)Mathf.Round(linkTextWidth / spaceWidth);
+                    int lastSpaceCount = (int)Mathf.Round(linkTextWidth / chWidth);
                     tempStr += new string(' ', lastSpaceCount);
                     //创建链接并加入列表
                     int tmp = links.Count;
@@ -110,48 +112,56 @@ public class MixedLabel : MonoBehaviour, IMixedLabel
             }
             else
             {
-                // 无转译，通常输入
-                float chWidth = MixedLabelUtil.GetCharacterSize(str[i], m_text.font, m_text.fontSize);
+                MixedLabelUtil.GetCharacterSize(str[i], font, ref fontSize, out chWidth, out chHeight);
                 widgetPos.x += chWidth;
                 tempStr += str[i];
                 if(widgetPos.x >= maxWidth)
                     tempStr = ChangeLine(tempStr,ref widgetPos);
             }
         }
-        m_text.text = tempStr;
-        
+        mText.text = tempStr;
+
     }
 
+    public void Dispose(){
+        
+    }
     string ChangeLine(string str ,ref Vector2 widgetPos)
     {
         str += '\n';
         widgetPos.x = 0;
-        widgetPos.y -= m_text.lineSpacing * m_text.fontSize;
+        widgetPos.y -= mText.lineSpacing * mText.fontSize;
         return str;
     }
 
     MotionEmoji CreateEmoji(ref int id ,ref Vector2 pos)
     {
-        int linkCount = (int)Mathf.Round(pos.y / (m_text.lineSpacing * m_text.fontSize));
-        GameObject obj = myCreateAction(ChatCreationType.Emoji);
+        int linkCount = (int)Mathf.Round(pos.y / (mText.lineSpacing * mText.fontSize));
+        GameObject obj = MixedLabelGlobal.emojiFactory.CreateObj(ChatCreationType.Emoji);
         MotionEmoji newEmoji = obj.GetComponent<MotionEmoji>();
-        newEmoji.transform.SetParent(m_text.transform);
+        newEmoji.transform.SetParent(mText.transform);
         newEmoji.transform.localScale = Vector3.one;
         newEmoji.GetComponent<RectTransform>().localPosition = new Vector3(pos.x, pos.y + 4 * linkCount, 0);
         newEmoji.gameObject.SetActive(true);
         newEmoji.Init(id);
+        if (emojiList == null)
+            emojiList = new List<GameObject>();
+        emojiList.Add(newEmoji.gameObject);
         return newEmoji;
     }
 
     HtmlLink CreateLink(string linkContent,string linkAction ,ref Vector2 pos ,ref int linkCount)
     {
         // + 4是补正，人肉调的，我也不知道为什么有这个偏差，从第二行开始有，第一行没有
-        HtmlLink newLink = myCreateAction(ChatCreationType.Hyperlink).GetComponent<HtmlLink>();
-        newLink.transform.SetParent(m_text.transform);
+        HtmlLink newLink = MixedLabelGlobal.emojiFactory.CreateObj(ChatCreationType.Hyperlink).GetComponent<HtmlLink>();
+        newLink.transform.SetParent(mText.transform);
         newLink.transform.localScale = Vector3.one;
         newLink.GetComponent<RectTransform>().localPosition = new Vector3(pos.x, pos.y - 4 * linkCount, 0); 
         newLink.gameObject.SetActive(true);
         newLink.InitText(linkContent, linkAction);
+        if (hyperlinkList == null)
+            hyperlinkList = new List<GameObject>();
+        hyperlinkList.Add(newLink.gameObject);
         return newLink;
     }
 }

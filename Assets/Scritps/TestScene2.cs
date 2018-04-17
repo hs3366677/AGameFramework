@@ -12,8 +12,7 @@ public class TestScene2 : MonoBehaviour {
     {
         MixedLabelGlobal.Init(
             Application.dataPath + "/../AssetBundles/StandaloneWindows/emoji",
-            createAction,
-            disposeAction);
+            new ChatFactory(this));
 
 	}
 	
@@ -26,14 +25,38 @@ public class TestScene2 : MonoBehaviour {
     {
         //AssetBundle ab = AssetBundle.LoadFromFile(AppConst.ConcatPath(Application.dataPath, "../AssetBundles_Standalone/testprotocolpanel"));
         //AssetBundleManifest manifest = ab.LoadAsset<AssetBundleManifest>("AssetBundleManifest") ;
-        LuaManager mLuaManager = gameObject.AddComponent<LuaManager>();
+        //LuaManager mLuaManager = gameObject.AddComponent<LuaManager>();
 
-        mLuaManager.InitStart();
-        mLuaManager.DoFile("TestMixLabel");
+        //mLuaManager.InitStart();
+        //mLuaManager.DoFile("TestMixLabel");
+
+        string weirdString = "我是English Test Generic File[e-1][e-2]一段[h-超链接文字超链接文字超链接文字超链接文字超链接文字_DoAction]，一个[e-1][e-2]一个[e-1][e-2]一个[e-1][e-2]一个[e-1][e-2]一个[e-1][e-2]一个[e-1][e-2]一个[e-1][e-2]一个[e-1][e-2]，外加一张[i-aaa]和一张[i-bbb]";
+
+        GameObject mObj = LuaHelper.CreateInstance("Assets/GameModules/Chat/Prefabs/GameObject.prefab");
+        mObj.transform.parent = LuaHelper.GetActiveCanvasParent();
+        MixedLabel mixedLabel = mObj.GetComponent<MixedLabel>();
+
+
+        System.Diagnostics.Stopwatch sw = new System.Diagnostics.Stopwatch();
+        sw.Start();
+        for (int i = 0; i < 100; i++)
+            mixedLabel.Init(weirdString, 200);
+
+        sw.Stop();
+        Debug.LogFormat("request time = {0}", sw.Elapsed.TotalMilliseconds);
         
     }
 
-    GameObject createAction(ChatCreationType creationType)
+}
+
+class ChatFactory : IChatFactory
+{
+    MonoBehaviour context;
+    public ChatFactory(MonoBehaviour _context)
+    {
+        context = _context;
+    }
+    public GameObject CreateObj(ChatCreationType creationType)
     {
         GameObject obj = null;
         switch (creationType)
@@ -46,12 +69,25 @@ public class TestScene2 : MonoBehaviour {
                 break;
         }
         if (obj != null)
-            return Instantiate(obj) as GameObject;
+            return Object.Instantiate(obj) as GameObject;
         else
             return null;
     }
-    void disposeAction(ChatCreationType creationType)
+
+    public Sprite CreateSprite(string spriteName)
     {
+        Texture2D result = MixedLabelUtil.s_emojiBundle.LoadAsset<Texture2D>("assets/gamemodules/chat/textures/" + spriteName + ".png");
+        Sprite sp = Sprite.Create(result, new Rect(0, 0, result.width, result.height), Vector2.zero);
+        if (result == null){
+            Debug.LogFormat("{0} does not exist in assetbundle", spriteName);
+            return null;
+        }
+        else
+            return sp;
+    }
+    public void Dispose(GameObject obj)
+    {
+        Object.Destroy(obj);
         return;
     }
 

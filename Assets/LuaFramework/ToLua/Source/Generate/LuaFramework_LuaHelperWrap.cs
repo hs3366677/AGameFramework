@@ -13,6 +13,7 @@ public class LuaFramework_LuaHelperWrap
 		L.RegFunction("GetNetManager", GetNetManager);
 		L.RegFunction("GetSoundManager", GetSoundManager);
 		L.RegFunction("OnCallLuaFunc", OnCallLuaFunc);
+		L.RegFunction("GetActiveCanvasParent", GetActiveCanvasParent);
 		L.RegFunction("CreateInstance", CreateInstance);
 		L.RegFunction("OnJsonCallFunc", OnJsonCallFunc);
 		L.EndStaticLibs();
@@ -109,6 +110,22 @@ public class LuaFramework_LuaHelperWrap
 			LuaFunction arg1 = ToLua.CheckLuaFunction(L, 2);
 			LuaFramework.LuaHelper.OnCallLuaFunc(arg0, arg1);
 			return 0;
+		}
+		catch (Exception e)
+		{
+			return LuaDLL.toluaL_exception(L, e);
+		}
+	}
+
+	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
+	static int GetActiveCanvasParent(IntPtr L)
+	{
+		try
+		{
+			ToLua.CheckArgsCount(L, 0);
+			UnityEngine.Transform o = LuaFramework.LuaHelper.GetActiveCanvasParent();
+			ToLua.Push(L, o);
+			return 1;
 		}
 		catch (Exception e)
 		{

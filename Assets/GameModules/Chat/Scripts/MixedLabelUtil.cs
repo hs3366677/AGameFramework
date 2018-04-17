@@ -3,23 +3,22 @@ using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using UnityEngine;
 using UnityEngine.UI;
-
+using System.Diagnostics;
+using Debug = UnityEngine.Debug;
 
 public class MixedLabelUtil
 {
     public const string eChunk = "e-";
     public const string iChunk = "i-";
     public const string hChunk = "h-";
-
-
     /// <summary>
     /// 表情占用width,height固定大小
     /// </summary>
     public static int s_emojiSize = 24;
-
+    public static int widthChinese = 15;
 
     public static string assetBundlePath = Application.dataPath + "/../AssetBundles/StandaloneWindows/emoji";
-    static AssetBundle s_emojiBundle;
+    public static AssetBundle s_emojiBundle;
 
     /// <summary>
     /// 正则表达，获取聊天特殊转移符号
@@ -38,6 +37,9 @@ public class MixedLabelUtil
         return regexStr;
     }
 
+
+
+    //public static Dictionary<FontInfo, int> lookupTable = new Dictionary<FontInfo, int>();
     /// <summary>
     /// 获取字符宽度
     /// </summary>
@@ -45,13 +47,53 @@ public class MixedLabelUtil
     /// <param name="font"></param>
     /// <param name="fontSize"></param>
     /// <returns></returns>
-    public static int GetCharacterSize(char ch, Font font, int fontSize)
+    public static void GetCharacterSize(char ch, Font font, ref int fontSize, out int width, out int height, FontStyle style = FontStyle.Normal)
     {
+        height = 0;
         CharacterInfo info;
-        font.RequestCharactersInTexture(ch.ToString(), fontSize);
-        font.GetCharacterInfo(ch, out info, fontSize, FontStyle.Normal);
-        return info.advance;
+
+        //if (IsChinese(ch))
+        //{
+        //    FontInfo mFontInfo = new FontInfo() { fontName = font.name, fontSize = fontSize };
+        //    lookupTable.TryGetValue(mFontInfo, out width);
+        //    if (width != 0)
+        //    {
+        //        return;
+        //    }
+        //    else
+        //    {
+        //        //Stopwatch sw = new Stopwatch();
+        //        //sw.Start();
+        //        font.RequestCharactersInTexture(ch.ToString(), fontSize, style);
+        //        font.GetCharacterInfo(ch, out info, fontSize, style);
+        //        width = info.glyphWidth;
+        //        height = info.glyphHeight;
+        //        lookupTable.Add(mFontInfo, width);
+        //        //sw.Stop();
+        //        //Debug.LogFormat("'{0}' width = {1}; Space height = {2}; request time = {3}", ch, width, height, sw.Elapsed.TotalMilliseconds);
+                
+        //    }
+        //}
+        //else
+        {
+            //Stopwatch sw = new Stopwatch();
+            //sw.Start();
+            font.RequestCharactersInTexture(ch.ToString(), fontSize, style);
+            font.GetCharacterInfo(ch, out info, fontSize, style);
+            width = info.glyphWidth;
+            height = info.glyphHeight;
+            //sw.Stop();
+            //Debug.LogFormat("'{0}' width = {1}; Space height = {2}; request time = {3}", ch, width, height, sw.Elapsed.TotalMilliseconds);
+        }
+        return;
     }
+
+    public static bool IsChinese(char ch)
+    {
+        return ch >= 0x4E00 && ch <= 0x9FA5;
+    }
+
+
 
     public static string[] GetHtmlInfo(string str)
     {
@@ -78,9 +120,27 @@ public class MixedLabelUtil
 
     public static Sprite GetSpriteByName(string sprName)
     {
-        if (s_emojiBundle != null && s_emojiBundle.Contains(sprName))
-            return s_emojiBundle.LoadAsset<Sprite>(sprName);
-
-        return null;
+        return MixedLabelGlobal.emojiFactory.CreateSprite(sprName);
     }
+}
+
+public class FontInfo
+{
+    public string fontName;
+    public int fontSize;
+    public int width;
+    public int height;
+    public override bool Equals(object obj)
+    {
+        if (obj.GetType() == this.GetType()){
+            return fontName == ((FontInfo)obj).fontName && fontSize == ((FontInfo)obj).fontSize;
+        }
+        return base.Equals(obj);
+    }
+
+    public override int GetHashCode()
+    {
+        return fontName.GetHashCode() ^ fontSize.GetHashCode();
+    }
+
 }
