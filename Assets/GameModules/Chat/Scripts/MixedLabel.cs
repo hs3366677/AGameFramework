@@ -200,11 +200,9 @@ public class MixedLabel : MonoBehaviour, IDisposable
 
     HtmlLink CreateLink(string linkContent,string linkAction ,ref Vector2 pos ,ref int linkCount)
     {
-        // + 4是补正，人肉调的，我也不知道为什么有这个偏差，从第二行开始有，第一行没有
         HtmlLink newLink = MixedLabelGlobal.emojiFactory.CreateObj(ChatCreationType.Hyperlink).GetComponent<HtmlLink>();
         newLink.transform.SetParent(mText.transform);
         newLink.transform.localScale = Vector3.one;
-        //newLink.GetComponent<RectTransform>().localPosition = new Vector3(pos.x, pos.y - 4 * linkCount, 0); 
         newLink.GetComponent<RectTransform>().localPosition = new Vector3(pos.x, pos.y, 0); 
         newLink.gameObject.SetActive(true);
         newLink.InitText(linkContent, linkAction);

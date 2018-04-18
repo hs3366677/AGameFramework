@@ -1,4 +1,7 @@
-﻿using System.Collections;
+﻿///All Configurations go here
+///This file defines all the interface for external use
+
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 

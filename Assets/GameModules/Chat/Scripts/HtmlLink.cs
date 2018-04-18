@@ -10,6 +10,7 @@ public class HtmlLink : MonoBehaviour
     public Color m_defaultColor = Color.blue;
     public Color m_pressColor = Color.yellow;
 
+    private PolygonCollider2D polygonCollider;
     Text m_selfText;                                        //文字
     Text m_selfLine;                                        //下划线
     List<HtmlLink> m_otherLink = new List<HtmlLink>();      //其他超链接（用于处理换行情况）
@@ -18,15 +19,14 @@ public class HtmlLink : MonoBehaviour
 
     void Awake()
     {
-        LuaManager luaMgr = AppFacade.Instance.GetManager<LuaManager>(ManagerName.Lua);
-        //luaMgr.DoFile("LinkDelegate/LinkDelegate.lua");
-
         m_selfText = GetComponent<Text>();
+        polygonCollider = GetComponent<PolygonCollider2D>();
         m_selfText.color = m_defaultColor;
     }
 
     public void InitText(string str , string action)
     {
+        SetPolygonCollider();
         m_selfText.text = str;
         m_selfLine = CreateLink(str, m_selfText, m_defaultColor);
         m_linkAction = action;
@@ -88,5 +88,33 @@ public class HtmlLink : MonoBehaviour
 	    rt.anchorMin = Vector2.zero;
 
         return line;
+    }
+    
+    void SetPolygonCollider()
+    {
+        int xOffset1 = 50;
+        int xOffset2 = 20;
+        int lineWidth = 100;
+        int lineCount = 4;
+        int lineHeight = 16;
+        Vector2[] v = new Vector2[8];
+        v[0] = new Vector2(xOffset1, 0);
+        v[1] = new Vector2(xOffset1, -lineHeight);
+        v[2] = new Vector2(0, -lineHeight);
+        v[3] = new Vector2(0, -lineCount*lineHeight);
+        v[4] = new Vector2(xOffset2, -lineCount*lineHeight);
+        v[5] = new Vector2(xOffset2, -(lineCount -1)* lineHeight);
+        v[6] = new Vector2(lineWidth, -(lineCount - 1) * lineHeight);
+        v[7] = new Vector2(lineWidth, 0);
+        polygonCollider.points = v;
+    }
+    public void OnHoverIn()
+    {
+        Debug.Log("hover in");
+    }
+
+    public void OnHoverOut()
+    {
+        Debug.Log("hover out");
     }
 }
