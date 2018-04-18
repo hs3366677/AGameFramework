@@ -30,6 +30,7 @@ public class TestScene2 : MonoBehaviour {
         //mLuaManager.InitStart();
         //mLuaManager.DoFile("TestMixLabel");
 
+        //string weirdString = "TgTgTgTgTgTgTg[e-1][e-2]TgTgTgTg[e-1][e-2]TgTg[e-1][e-2]";
         string weirdString = "我是English Test Generic File[e-1][e-2]一段[h-超链接文字超链接文字超链接文字超链接文字超链接文字_DoAction]，一个[e-1][e-2]一个[e-1][e-2]一个[e-1][e-2]一个[e-1][e-2]一个[e-1][e-2]一个[e-1][e-2]一个[e-1][e-2]一个[e-1][e-2]，外加一张[i-aaa]和一张[i-bbb]";
 
         GameObject mObj = LuaHelper.CreateInstance("Assets/GameModules/Chat/Prefabs/GameObject.prefab");
@@ -39,8 +40,8 @@ public class TestScene2 : MonoBehaviour {
 
         System.Diagnostics.Stopwatch sw = new System.Diagnostics.Stopwatch();
         sw.Start();
-        for (int i = 0; i < 100; i++)
-            mixedLabel.Init(weirdString, 200);
+
+        mixedLabel.Init(weirdString, 100);
 
         sw.Stop();
         Debug.LogFormat("request time = {0}", sw.Elapsed.TotalMilliseconds);

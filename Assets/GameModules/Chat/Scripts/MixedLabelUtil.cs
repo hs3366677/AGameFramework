@@ -39,7 +39,7 @@ public class MixedLabelUtil
 
 
 
-    //public static Dictionary<FontInfo, int> lookupTable = new Dictionary<FontInfo, int>();
+    public static Dictionary<FontInfo, int> lookupTable = new Dictionary<FontInfo, int>();
     /// <summary>
     /// 获取字符宽度
     /// </summary>
@@ -47,9 +47,8 @@ public class MixedLabelUtil
     /// <param name="font"></param>
     /// <param name="fontSize"></param>
     /// <returns></returns>
-    public static void GetCharacterSize(char ch, Font font, ref int fontSize, out int width, out int height, FontStyle style = FontStyle.Normal)
+    public static void GetCharacterSize(char ch, Font font, ref int fontSize, out int width, FontStyle style = FontStyle.Normal)
     {
-        height = 0;
         CharacterInfo info;
 
         //if (IsChinese(ch))
@@ -67,11 +66,10 @@ public class MixedLabelUtil
         //        font.RequestCharactersInTexture(ch.ToString(), fontSize, style);
         //        font.GetCharacterInfo(ch, out info, fontSize, style);
         //        width = info.glyphWidth;
-        //        height = info.glyphHeight;
         //        lookupTable.Add(mFontInfo, width);
         //        //sw.Stop();
         //        //Debug.LogFormat("'{0}' width = {1}; Space height = {2}; request time = {3}", ch, width, height, sw.Elapsed.TotalMilliseconds);
-                
+
         //    }
         //}
         //else
@@ -80,10 +78,8 @@ public class MixedLabelUtil
             //sw.Start();
             font.RequestCharactersInTexture(ch.ToString(), fontSize, style);
             font.GetCharacterInfo(ch, out info, fontSize, style);
-            width = info.glyphWidth;
-            height = info.glyphHeight;
+            width = info.advance;
             //sw.Stop();
-            //Debug.LogFormat("'{0}' width = {1}; Space height = {2}; request time = {3}", ch, width, height, sw.Elapsed.TotalMilliseconds);
         }
         return;
     }

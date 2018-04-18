@@ -55,11 +55,11 @@ MonoBehaviour:
     m_BestFit: 0
     m_MinSize: 10
     m_MaxSize: 40
-    m_Alignment: 3
+    m_Alignment: 0
     m_AlignByGeometry: 0
     m_RichText: 1
-    m_HorizontalOverflow: 0
-    m_VerticalOverflow: 0
+    m_HorizontalOverflow: 1
+    m_VerticalOverflow: 1
     m_LineSpacing: 1
   m_Text: 12124124
 --- !u!114 &114862838674705904
@@ -73,9 +73,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6f04d971998b389488cbfeb5ef410706, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_linkPrefab: {fileID: 0}
-  m_emojiPrefab: {fileID: 0}
-  m_imagePrefab: {fileID: 0}
 --- !u!222 &222707552592558670
 CanvasRenderer:
   m_ObjectHideFlags: 1
