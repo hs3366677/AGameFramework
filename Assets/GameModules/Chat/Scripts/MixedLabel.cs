@@ -9,8 +9,8 @@ using Debug = UnityEngine.Debug;
 
 public class MixedLabel : MonoBehaviour, IDisposable
 {
-    List<GameObject> emojiList;
-    List<GameObject> hyperlinkList;
+    List<MotionEmoji> emojiList;
+    List<HyperLink> hyperlinkList;
 
     Text mText;
     RectTransform mRectTransform;
@@ -28,9 +28,13 @@ public class MixedLabel : MonoBehaviour, IDisposable
 
     int totalWidth;
     int totalHeight;
+    int hyperCount;
+
+    TextSettings mTextSettings;
     void Awake()
     {
         mText = GetComponent<Text>();
+        mTextSettings = new TextSettings();
         mRectTransform = GetComponent<RectTransform>();
         if (mText == null)
         {
@@ -55,12 +59,19 @@ public class MixedLabel : MonoBehaviour, IDisposable
         emojiSpaceCount = (int)Mathf.Round(MixedLabelUtil.s_emojiSize / spaceCharWidth);
         totalWidth = 0;
         totalHeight = 0;
+        hyperCount = 0;
+        mTextSettings.font = font;
+        mTextSettings.fontSize = fontSize;
+        mTextSettings.fontStyle = mText.fontStyle;
+        mTextSettings.hoverColor = Color.red;// mText.color;
+        mTextSettings.defaultColor = Color.blue;// *0.5f;
+        mTextSettings.pressColor = Color.green;// *1.3f;
+
     }
 
-    public void Init(string str, int maxWidth)
+    public void Init(string str, int maxWidth, params Action<int>[] hyperLinkActions)
     {
         Reset();
-        
         int tmpCharWidth = 0;
         for (int i = 0; i < str.Length; i++)
         {
@@ -78,7 +89,7 @@ public class MixedLabel : MonoBehaviour, IDisposable
                 }
 
                 string escapeWord = mEscapeBuilder.ToString();
-                if (StringUtil.StartsWith(escapeWord, MixedLabelUtil.eChunk))//表情转译，格式为[e-编号]
+                if (StringUtil.StartsWith(escapeWord, MixedLabelUtil.eChunk))
                 {
                     //exceed lineMaxWidth
                     if (cursorPos.x + emojiSpaceCount * spaceCharWidth > maxWidth)
@@ -90,73 +101,69 @@ public class MixedLabel : MonoBehaviour, IDisposable
                     CreateEmoji(ref emojiId, ref cursorPos);
                     cursorPos.x += emojiSpaceCount * spaceCharWidth;
                 }
-                else if (StringUtil.StartsWith(escapeWord, MixedLabelUtil.iChunk))//图片转译，格式为[i-路径]
+                else if (StringUtil.StartsWith(escapeWord, MixedLabelUtil.iChunk))
                 {
-                    //暂未实现
+                    //TO-DO
                 }
-                else if (StringUtil.StartsWith(escapeWord, MixedLabelUtil.hChunk))//超链接转译，格式为[h-显示的连接文字_链接回调关键字] 这里将来可以拓展，填入道具ID之类的，具体字符处理可以交给lua层
+                else if (StringUtil.StartsWith(escapeWord, MixedLabelUtil.hChunk))
                 {
-                    //可能存在一个链接信息过场，生成多个超链接问题
-                    List<HtmlLink> links = new List<HtmlLink>();
+                    string linkText;
+                    int linkNumber;
+                    MixedLabelUtil.GetHtmlInfo(escapeWord, out linkText, out linkNumber);
 
-                    //先分割字符串，获取超链接的文字和回调信息
-                    string[] linkInfo = MixedLabelUtil.GetHtmlInfo(escapeWord);
-                    string linkText = linkInfo[0];
-                    string linkAction = linkInfo[1];
 
-                    //遍历链接的文字信息，处理换行
+                    HyperLink hyperLink;
+                    if (hyperLinkActions != null && hyperLinkActions.Length > hyperCount)
+                        hyperLink = CreateLink(hyperLinkActions[hyperCount], mTextSettings, linkNumber);
+                    else
+                        hyperLink = CreateLink(null, mTextSettings, linkNumber);
+                    hyperCount++;
+
                     float linkTextWidth = 0;
                     string currentLinkText = "";
                     for (int j = 0; j < linkText.Length; j++)
                     {
                         MixedLabelUtil.GetCharacterSize(linkText[j], mText.font, ref fontSize, out tmpCharWidth);
-                        linkTextWidth += tmpCharWidth;
-                        currentLinkText += linkText[j];
-                        if (cursorPos.x + linkTextWidth > maxWidth)
+
+                        if (cursorPos.x + linkTextWidth + tmpCharWidth > maxWidth)
                         {
-                            //注意，这里如果有换行，最好是以最大行距和当前控件位置的差来补空格，不然有可能出现空格传到下一行的问题
-                            linkTextWidth = maxWidth - cursorPos.x;
-                            //空格填充
-                            int spaceCount = (int)Mathf.Round(linkTextWidth / tmpCharWidth);
-                            mStringBuilder.Append(' ', spaceCount);
-                            //创建链接并加入列表
-                            int linkCount = links.Count;
-                            links.Add(CreateLink(currentLinkText, linkAction, ref cursorPos, ref linkCount));
+                            mStringBuilder.Append(' ', (int)Mathf.Round(linkTextWidth / spaceCharWidth));
+
+                            hyperLink.CreateSubLink(ref cursorPos, currentLinkText, ref linkTextWidth, ref lineHeight);
 
                             //换行
                             ChangeLine(mStringBuilder, ref cursorPos);
-                            currentLinkText = "";
-                            linkTextWidth = 0;
+                            currentLinkText = linkText[j].ToString();
+                            linkTextWidth = tmpCharWidth;
+                        }
+                        else
+                        {
+                            linkTextWidth += tmpCharWidth;
+                            currentLinkText += linkText[j];
                         }
                     }
-                    //全部完成后把最后的内容都加入
-                    //空格填充
-                    int lastSpaceCount = (int)Mathf.Round(linkTextWidth / tmpCharWidth);
-                    mStringBuilder.Append(' ', lastSpaceCount);
-                    //创建链接并加入列表
-                    int tmp = links.Count;
-                    links.Add(CreateLink(currentLinkText, linkAction, ref cursorPos, ref tmp));
+
+                    mStringBuilder.Append(' ', (int)Mathf.Round(linkTextWidth / spaceCharWidth));
+                    hyperLink.CreateSubLink(ref cursorPos, currentLinkText, ref linkTextWidth, ref lineHeight);
                     cursorPos.x += linkTextWidth;
 
-                    //链接之间的互相作用
-                    for (int j = 0; j < links.Count; j++)
-                        links[j].InitOtherLink(links);
                 }
             }
             else
             {
                 MixedLabelUtil.GetCharacterSize(str[i], font, ref fontSize, out tmpCharWidth);
+                if(cursorPos.x + tmpCharWidth > maxWidth)
+                    ChangeLine(mStringBuilder, ref cursorPos);
                 cursorPos.x += tmpCharWidth;
                 mStringBuilder.Append(str[i]);
-                if(cursorPos.x >= maxWidth)
-                    ChangeLine(mStringBuilder, ref cursorPos);
             }
         }
         mText.text = mStringBuilder.ToString();
         totalWidth = maxWidth;
         totalHeight = (int)Math.Round(lineCount * lineHeight);
-        //mRectTransform.sizeDelta = new Vector2(totalWidth, totalHeight);
-        
+
+        mRectTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, totalWidth);
+        mRectTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, totalHeight);
     }
 
     public void Dispose(){
@@ -193,22 +200,22 @@ public class MixedLabel : MonoBehaviour, IDisposable
         newEmoji.gameObject.SetActive(true);
         newEmoji.Init(id);
         if (emojiList == null)
-            emojiList = new List<GameObject>();
-        emojiList.Add(newEmoji.gameObject);
+            emojiList = new List<MotionEmoji>();
+        emojiList.Add(newEmoji);
         return newEmoji;
     }
 
-    HtmlLink CreateLink(string linkContent,string linkAction ,ref Vector2 pos ,ref int linkCount)
+    HyperLink CreateLink(Action<int> clickCallback, TextSettings settings, int code)
     {
-        HtmlLink newLink = MixedLabelGlobal.emojiFactory.CreateObj(ChatCreationType.Hyperlink).GetComponent<HtmlLink>();
+        HyperLink newLink = MixedLabelGlobal.emojiFactory.CreateObj(ChatCreationType.Hyperlink).GetComponent<HyperLink>();
         newLink.transform.SetParent(mText.transform);
         newLink.transform.localScale = Vector3.one;
-        newLink.GetComponent<RectTransform>().localPosition = new Vector3(pos.x, pos.y, 0); 
         newLink.gameObject.SetActive(true);
-        newLink.InitText(linkContent, linkAction);
+        //newLink.InitText(linkContent, linkAction);
         if (hyperlinkList == null)
-            hyperlinkList = new List<GameObject>();
-        hyperlinkList.Add(newLink.gameObject);
+            hyperlinkList = new List<HyperLink>();
+        hyperlinkList.Add(newLink);
+        newLink.Init(settings, clickCallback, code);
         return newLink;
     }
 }

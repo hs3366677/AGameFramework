@@ -91,10 +91,20 @@ public class MixedLabelUtil
 
 
 
-    public static string[] GetHtmlInfo(string str)
+    public static void GetHtmlInfo(string str, out string linkText, out int linkNumber)
     {
-        str = str.Substring(2, str.Length - 2);
-        return str.Split('_');
+        int firstIndex = str.IndexOf('-');
+        int endIndex = str.LastIndexOf('-');
+        if (firstIndex != endIndex)
+        {
+            linkText = str.Substring(firstIndex + 1, endIndex - firstIndex - 1);
+            linkNumber = int.Parse(str.Substring(endIndex + 1));
+        }
+        else
+        {
+            linkText = str.Substring(firstIndex + 1);
+            linkNumber = 0;
+        }
     }
 
     /// <summary>

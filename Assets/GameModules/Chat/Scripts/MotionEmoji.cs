@@ -41,7 +41,7 @@ public class MotionEmoji : MonoBehaviour
         m_frameTimer += Time.deltaTime;
         if(m_frameTimer > m_frameRate)
         {
-            m_emoji.sprite = MixedLabelGlobal.emojiFactory.CreateSprite(string.Format("{0}_{1}", m_emojiId, m_currentFrame++)); 
+            //m_emoji.sprite = MixedLabelGlobal.emojiFactory.CreateSprite(string.Format("{0}_{1}", m_emojiId, m_currentFrame++)); 
             //MixedLabelUtil.GetSpriteByName(string.Format("{0}_{1}", m_emojiId, m_currentFrame++));
             m_frameTimer -= m_frameRate;
 

@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 0.44657844, g: 0.49641222, b: 0.57481694, a: 1}
+  m_IndirectSpecularColor: {r: 0.44657898, g: 0.4964133, b: 0.5748178, a: 1}
 --- !u!157 &3
 LightmapSettings:
   m_ObjectHideFlags: 0
@@ -125,6 +125,7 @@ GameObject:
   - component: {fileID: 549839419}
   - component: {fileID: 549839418}
   - component: {fileID: 549839422}
+  - component: {fileID: 549839423}
   m_Layer: 0
   m_Name: Main Camera
   m_TagString: MainCamera
@@ -164,10 +165,10 @@ Camera:
     height: 1
   near clip plane: 0.3
   far clip plane: 1000
-  field of view: 60
+  field of view: 51.1
   orthographic: 0
   orthographic size: 5
-  m_Depth: -1
+  m_Depth: -4.92
   m_CullingMask:
     serializedVersion: 2
     m_Bits: 4294967295
@@ -189,7 +190,7 @@ Transform:
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 549839417}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 1, z: -10}
+  m_LocalPosition: {x: 492, y: 313, z: -10}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
@@ -206,6 +207,21 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2eb814b45a796994fa85ed49912b5f6a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &549839423
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 549839417}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: -1690312454, guid: f70555f144d8491a825f0804e09c671c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_EventMask:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_MaxRayIntersections: 0
 --- !u!1 &796826211
 GameObject:
   m_ObjectHideFlags: 0
@@ -270,7 +286,7 @@ Canvas:
   m_Enabled: 1
   serializedVersion: 3
   m_RenderMode: 0
-  m_Camera: {fileID: 0}
+  m_Camera: {fileID: 549839420}
   m_PlaneDistance: 100
   m_PixelPerfect: 0
   m_ReceivesEvents: 1
@@ -495,7 +511,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: TgTgTgTgTgTgTgTgTgTgTg
+  m_Text: TgTgTg
 --- !u!222 &1554300721
 CanvasRenderer:
   m_ObjectHideFlags: 0
