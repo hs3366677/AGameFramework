@@ -7,6 +7,9 @@ using System.Text;
 using System.Diagnostics;
 using Debug = UnityEngine.Debug;
 
+/// <summary>
+/// Primary class
+/// </summary>
 public class MixedLabel : MonoBehaviour, IDisposable
 {
     List<MotionEmoji> emojiList;
@@ -22,12 +25,13 @@ public class MixedLabel : MonoBehaviour, IDisposable
     float lineCount;
     int emojiSpaceCount;
     int spaceCharWidth;
+    FontStyle fontStyle;
     StringBuilder mStringBuilder;
     StringBuilder mEscapeBuilder;
     Stack<char> escapeStack;
 
-    int totalWidth;
-    int totalHeight;
+    public int totalWidth{get;set;}
+    public int totalHeight{get;set;}
     int hyperCount;
 
     TextSettings mTextSettings;
@@ -45,12 +49,11 @@ public class MixedLabel : MonoBehaviour, IDisposable
     /// <summary>
     /// Reset all parameter before reuse and initialization
     /// </summary>
-    void Reset()
+    void Reset(TextSettings textSettings)
     {
         mEscapeBuilder = new StringBuilder();
         mStringBuilder = new StringBuilder();
         cursorPos = Vector2.zero;
-        fontSize = mText.fontSize;
         font = mText.font;
         lineSpace = mText.lineSpacing;
         lineCount = 1;
@@ -60,18 +63,43 @@ public class MixedLabel : MonoBehaviour, IDisposable
         totalWidth = 0;
         totalHeight = 0;
         hyperCount = 0;
-        mTextSettings.font = font;
-        mTextSettings.fontSize = fontSize;
-        mTextSettings.fontStyle = mText.fontStyle;
-        mTextSettings.hoverColor = Color.red;// mText.color;
-        mTextSettings.defaultColor = Color.blue;// *0.5f;
-        mTextSettings.pressColor = Color.green;// *1.3f;
+
+        mText.color = textSettings.textColor;
+        if (textSettings.font == null)
+        {
+            textSettings.font = mText.font;
+        }
+        font = textSettings.font;
+
+        if (textSettings.fontSize == 0)
+            textSettings.fontSize = mText.fontSize;
+        fontSize = textSettings.fontSize;
+
+        if (textSettings.fontStyle == 0)
+            textSettings.fontStyle = mText.fontStyle;
+        fontStyle = textSettings.fontStyle;
+
+
+        //if (textSettings.hoverColor == null)
+        //    textSettings.hoverColor = Color.red;
+        //if (textSettings.defaultColor == null)
+        //    mTextSettings.defaultColor = Color.blue;// *0.5f;
+        //if (textSettings.pressColor == null)
+        //    mTextSettings.pressColor = Color.green;// *1.3f;
+        mEmojiCreateList = new List<EmojiInfo>();
 
     }
 
-    public void Init(string str, int maxWidth, params Action<int>[] hyperLinkActions)
+    /// <summary>
+    /// init a mixed label;
+    /// </summary>
+    /// <param name="str">content should follow the rules : [e-xxx] represents emojis where xxx are the sprite name of the emoji;[h-xxx-11] represents a hyperlink where xxx are the content and 11 is reference number for callback</param>
+    /// <param name="maxWidth">max width of the label, which is also the width of the label</param>
+    /// <param name="hyperLinkActions">hyper link click callbacks, the number of params should be less or equal to the number of hyperlinks</param>
+    public void Init(string str, int maxWidth, TextSettings _textSettings, params Action<int>[] hyperLinkActions)
     {
-        Reset();
+        mTextSettings = _textSettings;
+        Reset(mTextSettings);
         int tmpCharWidth = 0;
         for (int i = 0; i < str.Length; i++)
         {
@@ -91,11 +119,9 @@ public class MixedLabel : MonoBehaviour, IDisposable
                 string escapeWord = mEscapeBuilder.ToString();
                 if (StringUtil.StartsWith(escapeWord, MixedLabelUtil.eChunk))
                 {
-                    //exceed lineMaxWidth
                     if (cursorPos.x + emojiSpaceCount * spaceCharWidth > maxWidth)
                         ChangeLine(mStringBuilder, ref cursorPos);
 
-                    //空格填充
                     mStringBuilder.Append(' ', emojiSpaceCount);
                     int emojiId = int.Parse(escapeWord.Substring(2, escapeWord.Length - 2));
                     CreateEmoji(ref emojiId, ref cursorPos);
@@ -110,8 +136,6 @@ public class MixedLabel : MonoBehaviour, IDisposable
                     string linkText;
                     int linkNumber;
                     MixedLabelUtil.GetHtmlInfo(escapeWord, out linkText, out linkNumber);
-
-
                     HyperLink hyperLink;
                     if (hyperLinkActions != null && hyperLinkActions.Length > hyperCount)
                         hyperLink = CreateLink(hyperLinkActions[hyperCount], mTextSettings, linkNumber);
@@ -128,10 +152,7 @@ public class MixedLabel : MonoBehaviour, IDisposable
                         if (cursorPos.x + linkTextWidth + tmpCharWidth > maxWidth)
                         {
                             mStringBuilder.Append(' ', (int)Mathf.Round(linkTextWidth / spaceCharWidth));
-
-                            hyperLink.CreateSubLink(ref cursorPos, currentLinkText, ref linkTextWidth, ref lineHeight);
-
-                            //换行
+                            hyperLink.CreateSubLink(ref cursorPos, currentLinkText, linkTextWidth, lineHeight * lineSpace);
                             ChangeLine(mStringBuilder, ref cursorPos);
                             currentLinkText = linkText[j].ToString();
                             linkTextWidth = tmpCharWidth;
@@ -144,7 +165,7 @@ public class MixedLabel : MonoBehaviour, IDisposable
                     }
 
                     mStringBuilder.Append(' ', (int)Mathf.Round(linkTextWidth / spaceCharWidth));
-                    hyperLink.CreateSubLink(ref cursorPos, currentLinkText, ref linkTextWidth, ref lineHeight);
+                    hyperLink.CreateSubLink(ref cursorPos, currentLinkText, linkTextWidth, lineHeight * lineSpace);
                     cursorPos.x += linkTextWidth;
 
                 }
@@ -159,15 +180,27 @@ public class MixedLabel : MonoBehaviour, IDisposable
             }
         }
         mText.text = mStringBuilder.ToString();
-        totalWidth = maxWidth;
-        totalHeight = (int)Math.Round(lineCount * lineHeight);
+        if (lineCount > 1)
+            totalWidth = maxWidth;
+        else
+            totalWidth = (int)cursorPos.x;
+        totalHeight = (int)Math.Round(lineHeight + (lineCount -1) * lineSpace * lineHeight);
 
         mRectTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, totalWidth);
         mRectTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, totalHeight);
+        CreateAllEmoji();
     }
 
+    /// <summary>
+    /// dispose ui element(dont destroy, they can be recycled)
+    /// </summary>
     public void Dispose(){
-        
+        foreach(var x in emojiList)
+            MixedLabelGlobal.emojiFactory.Dispose(x.gameObject);
+        foreach (var x in hyperlinkList)
+            MixedLabelGlobal.emojiFactory.Dispose(x.gameObject);
+
+        MixedLabelGlobal.emojiFactory.Dispose(gameObject);
     }
 
     void GetLineHeight()
@@ -176,42 +209,57 @@ public class MixedLabel : MonoBehaviour, IDisposable
         TextGenerationSettings generationSettings =
         mText.GetGenerationSettings(mText.rectTransform.rect.size);
         lineHeight = textGenenerator.GetPreferredHeight("A", generationSettings);
-
-        Debug.Log("Calculated Line Height is " + lineHeight + " " + font.ascent);
     }
     void ChangeLine(StringBuilder stringBuilder ,ref Vector2 widgetPos)
     {
         stringBuilder.Append('\n');
         widgetPos.x = 0;
-        if (lineCount == 1)
-            widgetPos.y -= lineHeight;
-        else
-            widgetPos.y -= lineSpace * lineHeight;
+        widgetPos.y -= lineSpace * lineHeight;
         lineCount++;
     }
 
-    MotionEmoji CreateEmoji(ref int id ,ref Vector2 pos)
+
+    struct EmojiInfo
     {
-        GameObject obj = MixedLabelGlobal.emojiFactory.CreateObj(ChatCreationType.Emoji);
-        MotionEmoji newEmoji = obj.GetComponent<MotionEmoji>();
-        newEmoji.transform.SetParent(mText.transform);
-        newEmoji.transform.localScale = Vector3.one;
-        newEmoji.GetComponent<RectTransform>().localPosition = new Vector3(pos.x + MixedLabelUtil.s_emojiSize / 2, pos.y - lineHeight/2);
-        newEmoji.gameObject.SetActive(true);
-        newEmoji.Init(id);
-        if (emojiList == null)
-            emojiList = new List<MotionEmoji>();
-        emojiList.Add(newEmoji);
-        return newEmoji;
+        public int id;
+        public Vector2 pos;
+    }
+
+    /// <summary>
+    /// All emoji needs to be created after the text size is determined, otherwise their position would 
+    /// mess up no matter what anchor is set(may be UGUI bug)
+    /// </summary>
+    List<EmojiInfo> mEmojiCreateList;
+
+    void CreateEmoji(ref int _id, ref Vector2 _pos)
+    {
+        mEmojiCreateList.Add(new EmojiInfo { id = _id, pos = _pos });
+    }
+    void CreateAllEmoji()
+    {
+        foreach (var x in mEmojiCreateList)
+        {
+            GameObject obj = MixedLabelGlobal.emojiFactory.CreateObj(ChatCreationType.Emoji);
+            obj.name = "Emoji-" + x.id;
+            MotionEmoji newEmoji = obj.GetComponent<MotionEmoji>();
+            newEmoji.transform.SetParent(mText.transform);
+            newEmoji.transform.localScale = Vector3.one;
+            newEmoji.GetComponent<RectTransform>().localPosition = new Vector3(x.pos.x + MixedLabelUtil.s_emojiSize / 2, x.pos.y - lineHeight / 2);
+            newEmoji.gameObject.SetActive(true);
+            newEmoji.Init(x.id);
+            if (emojiList == null)
+                emojiList = new List<MotionEmoji>();
+            emojiList.Add(newEmoji);
+        }
     }
 
     HyperLink CreateLink(Action<int> clickCallback, TextSettings settings, int code)
     {
         HyperLink newLink = MixedLabelGlobal.emojiFactory.CreateObj(ChatCreationType.Hyperlink).GetComponent<HyperLink>();
+        newLink.name = "HyperLink-" + code;
         newLink.transform.SetParent(mText.transform);
         newLink.transform.localScale = Vector3.one;
         newLink.gameObject.SetActive(true);
-        //newLink.InitText(linkContent, linkAction);
         if (hyperlinkList == null)
             hyperlinkList = new List<HyperLink>();
         hyperlinkList.Add(newLink);

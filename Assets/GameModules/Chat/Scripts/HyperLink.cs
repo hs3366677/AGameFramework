@@ -17,6 +17,15 @@ public class HyperLink : MonoBehaviour
 
     int code;
 
+    enum PointerState
+    {
+        None,
+        HoverIn,
+        Click
+    }
+
+    PointerState currentPointerState;
+
     void AssignPointerActions(Text text)
     {
         EventTriggerListener listener = text.GetComponent<EventTriggerListener>();
@@ -35,9 +44,10 @@ public class HyperLink : MonoBehaviour
         mTextSetting = _textSettings;
         clickAction = _clickAction;
         code = _code;
+        currentPointerState = PointerState.None;
     }
 
-    public void CreateSubLink(ref Vector2 cursorPos, string content, ref float contentLength, ref float contentHeight)
+    public void CreateSubLink(ref Vector2 cursorPos, string content, float contentLength, float contentHeight)
     {
         GameObject go = new GameObject("line");
         go.transform.SetParent(transform);
@@ -51,7 +61,7 @@ public class HyperLink : MonoBehaviour
         line.font = mTextSetting.font;
         line.fontSize = mTextSetting.fontSize;
         line.text = content;
-        line.color = mTextSetting.defaultColor;
+        line.color = mTextSetting.hyperDefaultColor;
         line.horizontalOverflow = UnityEngine.HorizontalWrapMode.Overflow;
         line.verticalOverflow = UnityEngine.VerticalWrapMode.Overflow;
         AssignPointerActions(line);
@@ -66,62 +76,89 @@ public class HyperLink : MonoBehaviour
         rtUnderline.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, contentHeight);
         rtUnderline.localPosition = cursorPos;
         Text Underline = goUnderline.AddComponent<Text>();
+        Underline.raycastTarget = false;
         Underline.font = mTextSetting.font;
         Underline.fontSize = mTextSetting.fontSize;
         int fontSize = Underline.fontSize;
         int charWidth;
         MixedLabelUtil.GetCharacterSize('_', Underline.font, ref fontSize, out charWidth);
         Underline.text = new string('_', (int)Mathf.Round(contentLength/charWidth));
-        Underline.color = mTextSetting.defaultColor;
+        Underline.color = mTextSetting.hyperDefaultColor;
         Underline.horizontalOverflow = UnityEngine.HorizontalWrapMode.Overflow;
         Underline.verticalOverflow = UnityEngine.VerticalWrapMode.Overflow;
         textLinks.Add(Underline);
     }
 
+    /// <summary>
+    /// hover in right after hover out if they are among inner widgets
+    /// </summary>
+    /// <param name="go"></param>
+    /// <param name="eventData"></param>
     public void OnHoverIn(GameObject go, PointerEventData eventData)
     {
+        hoverOutFlag = false;
+
+        if (currentPointerState == PointerState.Click ||
+            currentPointerState == PointerState.HoverIn)
+            return;
+
+        currentPointerState = PointerState.HoverIn;
         foreach (var x in textLinks)
         {
-            x.color = mTextSetting.hoverColor;
+            x.color = mTextSetting.hyperHoverColor;
         }
+        //insert real hover in action
+        Debug.Log("hover in");
     }
 
+    Coroutine hoverOutCoroutine = null;
+    bool hoverOutFlag = false;
+
+    /// <summary>
+    /// wait one frame to hover out
+    /// </summary>
+    /// <param name="go"></param>
+    /// <param name="eventData"></param>
     public void OnHoverOut(GameObject go, PointerEventData eventData)
     {
+        hoverOutFlag = true;
+        hoverOutCoroutine = StartCoroutine(HoverOutCoroutine());
+    }
+
+    IEnumerator HoverOutCoroutine()
+    {
+        yield return null;
+        if (!hoverOutFlag)
+            yield break; 
+        currentPointerState = PointerState.None;
         foreach (var x in textLinks)
         {
-            x.color = mTextSetting.defaultColor;
+            x.color = mTextSetting.hyperDefaultColor;
         }
+        //insert real hover out action
+        Debug.Log("hover out");
     }
 
     public void OnPress(GameObject go, PointerEventData eventData)
     {
+        currentPointerState = PointerState.Click;
         foreach (var x in textLinks)
         {
-            x.color = mTextSetting.pressColor;
+            x.color = mTextSetting.hyperPressColor;
         }
     }
 
 
     public void OnRelease(GameObject go, PointerEventData eventData)
     {
+        currentPointerState = PointerState.HoverIn;
         foreach (var x in textLinks)
         {
-            x.color = mTextSetting.hoverColor;
+            x.color = mTextSetting.hyperHoverColor;
         }
         clickAction(code);
         
     }
 
-}
-
-public class TextSettings
-{
-    public Font font;
-    public int fontSize;
-    public FontStyle fontStyle;
-    public Color defaultColor;
-    public Color hoverColor;
-    public Color pressColor;
 }
 

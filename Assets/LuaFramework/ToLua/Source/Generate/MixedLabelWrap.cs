@@ -11,6 +11,8 @@ public class MixedLabelWrap
 		L.RegFunction("Dispose", Dispose);
 		L.RegFunction("__eq", op_Equality);
 		L.RegFunction("__tostring", ToLua.op_ToString);
+		L.RegVar("totalWidth", get_totalWidth, set_totalWidth);
+		L.RegVar("totalHeight", get_totalHeight, set_totalHeight);
 		L.EndClass();
 	}
 
@@ -19,11 +21,13 @@ public class MixedLabelWrap
 	{
 		try
 		{
-			ToLua.CheckArgsCount(L, 3);
+			int count = LuaDLL.lua_gettop(L);
 			MixedLabel obj = (MixedLabel)ToLua.CheckObject<MixedLabel>(L, 1);
 			string arg0 = ToLua.CheckString(L, 2);
 			int arg1 = (int)LuaDLL.luaL_checknumber(L, 3);
-			obj.Init(arg0, arg1);
+			TextSettings arg2 = (TextSettings)ToLua.CheckObject<TextSettings>(L, 4);
+			System.Action<int>[] arg3 = ToLua.CheckParamsObject<System.Action<int>>(L, 5, count - 4);
+			obj.Init(arg0, arg1, arg2, arg3);
 			return 0;
 		}
 		catch (Exception e)
@@ -63,6 +67,82 @@ public class MixedLabelWrap
 		catch (Exception e)
 		{
 			return LuaDLL.toluaL_exception(L, e);
+		}
+	}
+
+	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
+	static int get_totalWidth(IntPtr L)
+	{
+		object o = null;
+
+		try
+		{
+			o = ToLua.ToObject(L, 1);
+			MixedLabel obj = (MixedLabel)o;
+			int ret = obj.totalWidth;
+			LuaDLL.lua_pushinteger(L, ret);
+			return 1;
+		}
+		catch(Exception e)
+		{
+			return LuaDLL.toluaL_exception(L, e, o, "attempt to index totalWidth on a nil value");
+		}
+	}
+
+	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
+	static int get_totalHeight(IntPtr L)
+	{
+		object o = null;
+
+		try
+		{
+			o = ToLua.ToObject(L, 1);
+			MixedLabel obj = (MixedLabel)o;
+			int ret = obj.totalHeight;
+			LuaDLL.lua_pushinteger(L, ret);
+			return 1;
+		}
+		catch(Exception e)
+		{
+			return LuaDLL.toluaL_exception(L, e, o, "attempt to index totalHeight on a nil value");
+		}
+	}
+
+	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
+	static int set_totalWidth(IntPtr L)
+	{
+		object o = null;
+
+		try
+		{
+			o = ToLua.ToObject(L, 1);
+			MixedLabel obj = (MixedLabel)o;
+			int arg0 = (int)LuaDLL.luaL_checknumber(L, 2);
+			obj.totalWidth = arg0;
+			return 0;
+		}
+		catch(Exception e)
+		{
+			return LuaDLL.toluaL_exception(L, e, o, "attempt to index totalWidth on a nil value");
+		}
+	}
+
+	[MonoPInvokeCallbackAttribute(typeof(LuaCSFunction))]
+	static int set_totalHeight(IntPtr L)
+	{
+		object o = null;
+
+		try
+		{
+			o = ToLua.ToObject(L, 1);
+			MixedLabel obj = (MixedLabel)o;
+			int arg0 = (int)LuaDLL.luaL_checknumber(L, 2);
+			obj.totalHeight = arg0;
+			return 0;
+		}
+		catch(Exception e)
+		{
+			return LuaDLL.toluaL_exception(L, e, o, "attempt to index totalHeight on a nil value");
 		}
 	}
 }

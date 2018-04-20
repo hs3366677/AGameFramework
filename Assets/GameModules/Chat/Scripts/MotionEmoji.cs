@@ -23,7 +23,7 @@ public class MotionEmoji : MonoBehaviour
     public void Init(int emojiId)
     {
         m_emoji = GetComponent<Image>();
-        //这里需要动态加载资源，待日后资源管理写完后补完
+        
         m_emojiId = emojiId;
 
         for(int i = 0 ;i < s_emojiMaxFrame ; i++)
@@ -41,7 +41,7 @@ public class MotionEmoji : MonoBehaviour
         m_frameTimer += Time.deltaTime;
         if(m_frameTimer > m_frameRate)
         {
-            //m_emoji.sprite = MixedLabelGlobal.emojiFactory.CreateSprite(string.Format("{0}_{1}", m_emojiId, m_currentFrame++)); 
+            m_emoji.sprite = MixedLabelGlobal.emojiFactory.CreateSprite(string.Format("{0}_{1}", m_emojiId, m_currentFrame++));
             //MixedLabelUtil.GetSpriteByName(string.Format("{0}_{1}", m_emojiId, m_currentFrame++));
             m_frameTimer -= m_frameRate;
 
